@@ -65,7 +65,7 @@
 
         h1 {
             color: var(--primary);
-            font-size: clamp(1.75rem, 5vw, 2.5rem);
+            font-size: clamp(1.52rem, 5vw, 2.5rem);
             margin-bottom: 0.5rem;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
@@ -553,8 +553,6 @@
                 padding: 0.875rem 1.5rem;
             }
         }
-
-        /* Print-specific styles */
         /* Print-specific styles */
         @media print {
             /* General page setup */
@@ -700,41 +698,37 @@
                 group projects</p>
         </div>
 
-
-
         <div class="card">
             <div class="input-section">
                 <div class="input-group">
-                    <h2><i class="fas fa-users"></i> Team Names</h2>
-                    <div id="team-inputs">
-                        <div class="input-container">
-                            <div class="input-wrapper">
-                                <input type="text" class="team-input"
-                                    oninput="checkInputValue(this)">
-                            </div>
-                            <button class="add-btn" onclick="addTeamField()"><i class="fas fa-plus"></i></button>
-                        </div>
+                    <h2><i class="fas fa-users"></i> Number of Teams</h2>
+                    <div class="input-container">
+                        <input type="number" id="team-count" min="1" placeholder="Enter number of teams"
+                            oninput="generateTeamFields()">
                     </div>
                 </div>
 
                 <div class="input-group">
                     <h2>
-                        <i class="fas fa-lightbulb"></i> Problem Statements
-                        <span class="tooltip">
-                            <i class="fas fa-question-circle"></i>
-                            <span class="tooltip-text">Enter concise problem statements that teams will work on</span>
-                        </span>
+                        <i class="fas fa-lightbulb"></i> Number of Problem Statements
                     </h2>
-                    <div id="problem-inputs">
-                        <div class="input-container">
-                            <div class="input-wrapper">
-                                <input type="text" class="problem-input"
-                                    oninput="checkInputValue(this)">
-                            </div>
-                            <button class="add-btn" onclick="addProblemField()"><i class="fas fa-plus"></i></button>
-                        </div>
+                    <div class="input-container">
+                        <input type="number" id="problem-count" min="1" placeholder="Enter number of problems"
+                            oninput="generateProblemFields()">
                     </div>
                 </div>
+            </div>
+
+            <!-- Team Inputs Container -->
+            <div id="team-inputs-container" class="input-group" style="display: none;">
+                <h2><i class="fas fa-users"></i> Team Names</h2>
+                <div id="team-inputs"></div>
+            </div>
+
+            <!-- Problem Inputs Container -->
+            <div id="problem-inputs-container" class="input-group" style="display: none;">
+                <h2><i class="fas fa-lightbulb"></i> Problem Statements</h2>
+                <div id="problem-inputs"></div>
             </div>
 
             <div class="action-buttons">
@@ -759,25 +753,6 @@
     </div>
 
     <script>
-        function hasDuplicates(array) {
-            return (new Set(array)).size !== array.length;
-        }
-        document.addEventListener('DOMContentLoaded', function () {
-            if (document.getElementById('instructions')) {
-                document.getElementById('instructions').addEventListener('click', function () {
-                    this.classList.toggle('expanded');
-                    const icon = document.getElementById('instructions-icon');
-                    if (this.classList.contains('expanded')) {
-                        icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
-                    } else {
-                        icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
-                    }
-                });
-            }
-
-            // Add print button to results header
-            addPrintButtonToHeader();
-        });
         function addPrintButtonToHeader() {
             const resultsHeader = document.querySelector('.results-header');
             if (resultsHeader) {
@@ -800,6 +775,68 @@
                 }
             }
         }
+        function hasDuplicates(array) {
+            return (new Set(array)).size !== array.length;
+        }
+
+        function generateTeamFields() {
+            const teamCount = parseInt(document.getElementById('team-count').value);
+            const teamInputsContainer = document.getElementById('team-inputs');
+            teamInputsContainer.innerHTML = ''; // Clear existing fields
+
+            if (teamCount > 0) {
+                document.getElementById('team-inputs-container').style.display = 'block';
+                for (let i = 0; i < teamCount; i++) {
+                    const inputContainer = document.createElement('div');
+                    inputContainer.className = 'input-container';
+
+                    const inputWrapper = document.createElement('div');
+                    inputWrapper.className = 'input-wrapper';
+
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'team-input';
+                    input.placeholder = `Team ${i + 1}`;
+                    input.oninput = function () { checkInputValue(this); };
+
+                    inputWrapper.appendChild(input);
+                    inputContainer.appendChild(inputWrapper);
+                    teamInputsContainer.appendChild(inputContainer);
+                }
+            } else {
+                document.getElementById('team-inputs-container').style.display = 'none';
+            }
+        }
+
+        function generateProblemFields() {
+            const problemCount = parseInt(document.getElementById('problem-count').value);
+            const problemInputsContainer = document.getElementById('problem-inputs');
+            problemInputsContainer.innerHTML = ''; // Clear existing fields
+
+            if (problemCount > 0) {
+                document.getElementById('problem-inputs-container').style.display = 'block';
+                for (let i = 0; i < problemCount; i++) {
+                    const inputContainer = document.createElement('div');
+                    inputContainer.className = 'input-container';
+
+                    const inputWrapper = document.createElement('div');
+                    inputWrapper.className = 'input-wrapper';
+
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'problem-input';
+                    input.placeholder = `Problem ${i + 1}`;
+                    input.oninput = function () { checkInputValue(this); };
+
+                    inputWrapper.appendChild(input);
+                    inputContainer.appendChild(inputWrapper);
+                    problemInputsContainer.appendChild(inputContainer);
+                }
+            } else {
+                document.getElementById('problem-inputs-container').style.display = 'none';
+            }
+        }
+
         function checkInputValue(input) {
             if (input.value.trim() !== '') {
                 input.parentElement.parentElement.classList.add('has-value');
@@ -807,64 +844,7 @@
                 input.parentElement.parentElement.classList.remove('has-value');
             }
         }
-        function addTeamField() {
-            const teamInputs = document.getElementById('team-inputs');
-            const inputContainer = document.createElement('div');
-            inputContainer.className = 'input-container';
 
-            const inputWrapper = document.createElement('div');
-            inputWrapper.className = 'input-wrapper';
-
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'team-input';
-            input.oninput = function () { checkInputValue(this); };
-
-            const removeBtn = document.createElement('button');
-            removeBtn.className = 'remove-btn';
-            removeBtn.innerHTML = '<i class="fas fa-minus"></i>';
-            removeBtn.onclick = function () {
-                teamInputs.removeChild(inputContainer);
-            };
-
-            inputWrapper.appendChild(input);
-            inputContainer.appendChild(inputWrapper);
-            inputContainer.appendChild(removeBtn);
-            teamInputs.appendChild(inputContainer);
-
-            // Focus on the new input
-            input.focus();
-        }
-
-
-        function addProblemField() {
-            const problemInputs = document.getElementById('problem-inputs');
-            const inputContainer = document.createElement('div');
-            inputContainer.className = 'input-container';
-
-            const inputWrapper = document.createElement('div');
-            inputWrapper.className = 'input-wrapper';
-
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'problem-input';
-            input.oninput = function () { checkInputValue(this); };
-
-            const removeBtn = document.createElement('button');
-            removeBtn.className = 'remove-btn';
-            removeBtn.innerHTML = '<i class="fas fa-minus"></i>';
-            removeBtn.onclick = function () {
-                problemInputs.removeChild(inputContainer);
-            };
-
-            inputWrapper.appendChild(input);
-            inputContainer.appendChild(inputWrapper);
-            inputContainer.appendChild(removeBtn);
-            problemInputs.appendChild(inputContainer);
-
-            // Focus on the new input
-            input.focus();
-        }
         function shuffle(array) {
             let currentIndex = array.length;
             let temporaryValue, randomIndex;
@@ -977,11 +957,11 @@
                 // Check if there are any assignments
                 if (assignments.length === 0) {
                     assignmentsContainer.innerHTML = `
-            <div class="empty-state">
-              <i class="fas fa-clipboard"></i>
-              <p>No assignments to display. Add teams and problems to get started.</p>
-            </div>
-          `;
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard"></i>
+                            <p>No assignments to display. Add teams and problems to get started.</p>
+                        </div>
+                    `;
                 } else {
                     // Add each assignment with a delay for animation
                     assignments.forEach((assignment, index) => {
@@ -1047,27 +1027,17 @@
         }
 
         function resetAll() {
-            // Reset team inputs
-            const teamInputs = document.getElementById('team-inputs');
-            teamInputs.innerHTML = `
-        <div class="input-container">
-          <div class="input-wrapper">
-            <input type="text" class="team-input" placeholder="Enter team name" oninput="checkInputValue(this)">
-          </div>
-          <button class="add-btn" onclick="addTeamField()"><i class="fas fa-plus"></i></button>
-        </div>
-      `;
+            // Reset number inputs
+            document.getElementById('team-count').value = '';
+            document.getElementById('problem-count').value = '';
 
-            // Reset problem inputs
-            const problemInputs = document.getElementById('problem-inputs');
-            problemInputs.innerHTML = `
-        <div class="input-container">
-          <div class="input-wrapper">
-            <input type="text" class="problem-input" oninput="checkInputValue(this)">
-          </div>
-          <button class="add-btn" onclick="addProblemField()"><i class="fas fa-plus"></i></button>
-        </div>
-      `;
+            // Hide input fields
+            document.getElementById('team-inputs-container').style.display = 'none';
+            document.getElementById('problem-inputs-container').style.display = 'none';
+
+            // Clear team and problem inputs
+            document.getElementById('team-inputs').innerHTML = '';
+            document.getElementById('problem-inputs').innerHTML = '';
 
             // Hide the results section
             const resultsSection = document.getElementById('results-section');
@@ -1075,22 +1045,11 @@
 
             // Clear error messages
             document.getElementById('error-container').innerHTML = '';
-
-            // Add a few initial fields for convenience
-            addTeamField();
-            addProblemField();
         }
 
-        // Add a few initial fields for convenience when the page loads
+        // Add current date for print footer
         document.addEventListener('DOMContentLoaded', function () {
-            // Add current date for print footer
             document.body.setAttribute('data-print-date', new Date().toLocaleDateString());
-
-            // Add initial fields
-            addTeamField();
-            addTeamField();
-            addProblemField();
-            addProblemField();
         });
     </script>
 </body>
