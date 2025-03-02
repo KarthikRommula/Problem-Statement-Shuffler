@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem Statement Shuffler</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #3730a3;
+            --primary-bg: #eef2ff;
+            --background: #f9fafb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --success: #10b981;
+            --success-light: #34d399;
+            --error: #ef4444;
+            --error-light: #f87171;
+            --warning: #f59e0b;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 0.5rem;
+            --container-padding: 2rem;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            padding: var(--container-padding);
+            background-image:
+                radial-gradient(circle at 20px 20px, rgba(79, 70, 229, 0.05) 2px, transparent 0),
+                radial-gradient(circle at 40px 40px, rgba(79, 70, 229, 0.05) 2px, transparent 0);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background-color: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: clamp(1rem, 5vw, 2rem);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            border: 1px solid var(--border);
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --container-padding: 1rem;
+            }
+
+            .input-section {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .card {
+                padding: 1.25rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .shuffle-btn,
+            .reset-btn {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .team-label {
+                font-size: 0.9rem;
+            }
+
+            .problem-label {
+                font-size: 0.9rem;
+            }
+
+            .result-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .problem-label {
+                padding-left: 0;
+                border-left: none;
+                border-top: 2px solid var(--border);
+                padding-top: 0.75rem;
+                width: 100%;
+            }
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        h2 {
+            font-size: clamp(1.25rem, 4vw, 1.5rem);
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h2 i {
+            font-size: 1.25rem;
+        }
+
+        .input-container {
+            display: flex;
+            margin-bottom: 0.75rem;
+            position: relative;
+            width: 100%;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            width: 100%;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            color: var(--text);
+            transition: all 0.2s ease-in-out;
+            background-color: #fcfcfc;
+        }
+
+        input::placeholder {
+            color: var(--text-light);
+            opacity: 0.7;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            background-color: white;
+        }
+
+        .input-container.has-value input {
+            background-color: white;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .add-btn {
+            padding: 0.75rem;
+            margin-left: 0.5rem;
+            border-radius: 50%;
+            min-width: 40px;
+            height: 40px;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .remove-btn {
+            background-color: var(--error);
+            padding: 0.75rem;
+            margin-left: 0.5rem;
+            border-radius: 50%;
+            min-width: 40px;
+            height: 40px;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .remove-btn:hover {
+            background-color: var(--error-light);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .shuffle-btn {
+            background-color: var(--success);
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            min-width: 200px;
+        }
+
+        .shuffle-btn:hover {
+            background-color: var(--success-light);
+        }
+
+        .reset-btn {
+            background-color: #64748b;
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            min-width: 200px;
+        }
+
+        .reset-btn:hover {
+            background-color: #94a3b8;
+        }
+
+        .confirm-reset {
+            background-color: var(--error);
+        }
+
+        .confirm-reset:hover {
+            background-color: var(--error-light);
+        }
+
+        .results-section {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.5s ease-in-out, max-height 0.5s ease-in-out;
+            background-color: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 0;
+            border: 1px solid var(--border);
+            width: 100%;
+        }
+
+        .results-section.show {
+            opacity: 1;
+            max-height: 2000px;
+            padding: clamp(1rem, 5vw, 2rem);
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .assignments-count {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            background-color: var(--primary-bg);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+        }
+
+        .result-card {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1.25rem;
+            border-radius: var(--radius);
+            background-color: white;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fade-in 0.5s ease-out forwards;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            width: 100%;
+        }
+
+        .result-card:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: var(--shadow);
+        }
+
+        .team-label {
+            flex: 0 0 30%;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.125rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .team-icon {
+            background-color: var(--primary-bg);
+            min-width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .problem-label {
+            flex: 1;
+            padding-left: 1rem;
+            border-left: 2px solid var(--border);
+            line-height: 1.5;
+        }
+
+        @keyframes fade-in {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: var(--error);
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 500;
+            animation: shake 0.5s ease-in-out;
+            background-color: #fef2f2;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            border: 1px solid #fee2e2;
+            width: 100%;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-10px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(10px);
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .instructions {
+            background-color: var(--primary-bg);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            transition: max-height 0.3s ease-out;
+            max-height: 50px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .instructions.expanded {
+            max-height: 300px;
+            /* Increased for small screens with more text wrapping */
+        }
+
+        .instructions-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .instructions-content {
+            margin-top: 0.75rem;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            color: var(--text-light);
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            opacity: 0.4;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--text);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+
+        /* Adjusted tooltip position for mobile */
+        @media (max-width: 480px) {
+            .tooltip .tooltip-text {
+                width: 160px;
+                left: auto;
+                right: 0;
+                transform: none;
+            }
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Improved touch target sizes for mobile */
+        @media (max-width: 768px) {
+
+            button,
+            input {
+                font-size: 16px;
+                /* Prevents iOS zoom on focus */
+            }
+
+            /* Better tap targets */
+            .add-btn,
+            .remove-btn {
+                min-width: 44px;
+                height: 44px;
+            }
+
+            /* Ensure buttons have enough space */
+            .action-buttons button {
+                padding: 0.875rem 1.5rem;
+            }
+        }
+
+        /* Print-specific styles */
+        /* Print-specific styles */
+        @media print {
+            /* General page setup */
+
+            @page {
+                size: letter;
+                margin: 0.5in;
+            }
+
+            /* Hide elements not needed for printing */
+            .card,
+            .input-section,
+            .action-buttons,
+            #error-container,
+            .add-btn,
+            .remove-btn,
+            button,
+            .tooltip,
+            .instructions,
+            .print-btn {
+                display: none !important;
+            }
+
+            /* Ensure the body and container have proper dimensions */
+            body {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                min-height: auto !important;
+                /* Remove forced white background */
+                /* background: white !important; */
+                background-image: none !important;
+            }
+
+            .container {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Enhance header for printing but preserve colors */
+            .header {
+                text-align: center !important;
+                margin-bottom: 1rem !important;
+                padding: 0 !important;
+            }
+
+            .header h1 {
+                font-size: 1.8rem !important;
+                /* Remove forced black color */
+                /* color: #000 !important; */
+                text-shadow: none !important;
+                margin-bottom: 0.5rem !important;
+            }
+
+            .subtitle {
+                font-size: 1rem !important;
+                /* Allow original color */
+                /* color: #333 !important; */
+            }
+
+            /* Make sure results section is visible */
+            .results-section {
+                display: block !important;
+                opacity: 1 !important;
+                max-height: none !important;
+                overflow: visible !important;
+                padding: 1rem !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+
+            /* Fix results header without forcing color */
+            .results-header {
+                margin-bottom: 1rem !important;
+            }
+
+            .results-header h2 {
+                /* Allow original color */
+                /* color: #000 !important; */
+                font-size: 1.5rem !important;
+            }
+
+            /* Enhance result cards */
+            .result-card {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                border: 1px solid #ddd !important;
+                margin-bottom: 0.75rem !important;
+                padding: 1rem !important;
+                box-shadow: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+                animation: none !important;
+            }
+
+            /* Improve team and problem display without forcing B&W */
+            .team-label {
+                /* Allow original color */
+                /* color: #000 !important; */
+                font-weight: bold !important;
+            }
+
+
+
+            .problem-label {
+                /* Allow original color */
+                /* color: #333 !important; */
+                border-left: 2px solid #ddd !important;
+            }
+
+            /* Footer with date */
+            body::after {
+                content: "Printed on " attr(data-print-date) !important;
+                display: block !important;
+                text-align: center !important;
+                font-size: 0.8rem !important;
+                color: #666 !important;
+                margin-top: 2rem !important;
+            }
+
+            /* Remove forced black text color for all elements */
+            /* * {
+        color: #000 !important;
+    } */
+
+            /* Ensure assignments count is visible but keep original colors */
+            .assignments-count {
+                background-color: transparent !important;
+                /* Allow original color */
+                /* color: #333 !important; */
+                padding: 0 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Problem Statement Shuffler</h1>
+            <p class="subtitle">Randomly assign problem statements to teams for brainstorming sessions, hackathons, or
+                group projects</p>
+        </div>
+
+
+
+        <div class="card">
+            <div class="input-section">
+                <div class="input-group">
+                    <h2><i class="fas fa-users"></i> Team Names</h2>
+                    <div id="team-inputs">
+                        <div class="input-container">
+                            <div class="input-wrapper">
+                                <input type="text" class="team-input" placeholder="Enter team name"
+                                    oninput="checkInputValue(this)">
+                            </div>
+                            <button class="add-btn" onclick="addTeamField()"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <h2>
+                        <i class="fas fa-lightbulb"></i> Problem Statements
+                        <span class="tooltip">
+                            <i class="fas fa-question-circle"></i>
+                            <span class="tooltip-text">Enter concise problem statements that teams will work on</span>
+                        </span>
+                    </h2>
+                    <div id="problem-inputs">
+                        <div class="input-container">
+                            <div class="input-wrapper">
+                                <input type="text" class="problem-input" placeholder="Enter problem statement"
+                                    oninput="checkInputValue(this)">
+                            </div>
+                            <button class="add-btn" onclick="addProblemField()"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="shuffle-btn" class="shuffle-btn" onclick="shuffleAndAssign()">
+                    <i class="fas fa-random"></i> Shuffle & Assign
+                </button>
+                <button id="reset-btn" class="reset-btn" onclick="confirmReset()">
+                    <i class="fas fa-trash-alt"></i> Reset All
+                </button>
+            </div>
+
+            <div id="error-container"></div>
+        </div>
+
+        <div id="results-section" class="results-section">
+            <div class="results-header">
+                <h2><i class="fas fa-clipboard-list"></i> Assignments</h2>
+                <span id="assignments-count" class="assignments-count">0 pairs</span>
+            </div>
+            <div id="assignments-container"></div>
+        </div>
+    </div>
+
+    <script>
+        function hasDuplicates(array) {
+            return (new Set(array)).size !== array.length;
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            if (document.getElementById('instructions')) {
+                document.getElementById('instructions').addEventListener('click', function () {
+                    this.classList.toggle('expanded');
+                    const icon = document.getElementById('instructions-icon');
+                    if (this.classList.contains('expanded')) {
+                        icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+                    } else {
+                        icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+                    }
+                });
+            }
+
+            // Add print button to results header
+            addPrintButtonToHeader();
+        });
+        function addPrintButtonToHeader() {
+            const resultsHeader = document.querySelector('.results-header');
+            if (resultsHeader) {
+                // Check if print button already exists
+                if (!document.querySelector('.print-btn')) {
+                    const printBtn = document.createElement('button');
+                    printBtn.innerHTML = '<i class="fas fa-print"></i> Print Results';
+                    printBtn.className = 'print-btn';
+                    printBtn.style.backgroundColor = '#4f46e5';
+                    printBtn.style.color = 'white';
+                    printBtn.style.border = 'none';
+                    printBtn.style.borderRadius = '0.5rem';
+                    printBtn.style.padding = '0.5rem 1rem';
+                    printBtn.style.cursor = 'pointer';
+                    printBtn.style.marginLeft = '10px';
+                    printBtn.onclick = function () {
+                        window.print();
+                    };
+                    resultsHeader.appendChild(printBtn);
+                }
+            }
+        }
+        function checkInputValue(input) {
+            if (input.value.trim() !== '') {
+                input.parentElement.parentElement.classList.add('has-value');
+            } else {
+                input.parentElement.parentElement.classList.remove('has-value');
+            }
+        }
+        function addTeamField() {
+            const teamInputs = document.getElementById('team-inputs');
+            const inputContainer = document.createElement('div');
+            inputContainer.className = 'input-container';
+
+            const inputWrapper = document.createElement('div');
+            inputWrapper.className = 'input-wrapper';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'team-input';
+            input.placeholder = 'Enter team name';
+            input.oninput = function () { checkInputValue(this); };
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '<i class="fas fa-minus"></i>';
+            removeBtn.onclick = function () {
+                teamInputs.removeChild(inputContainer);
+            };
+
+            inputWrapper.appendChild(input);
+            inputContainer.appendChild(inputWrapper);
+            inputContainer.appendChild(removeBtn);
+            teamInputs.appendChild(inputContainer);
+
+            // Focus on the new input
+            input.focus();
+        }
+
+
+        function addProblemField() {
+            const problemInputs = document.getElementById('problem-inputs');
+            const inputContainer = document.createElement('div');
+            inputContainer.className = 'input-container';
+
+            const inputWrapper = document.createElement('div');
+            inputWrapper.className = 'input-wrapper';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'problem-input';
+            input.placeholder = 'Enter problem statement';
+            input.oninput = function () { checkInputValue(this); };
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '<i class="fas fa-minus"></i>';
+            removeBtn.onclick = function () {
+                problemInputs.removeChild(inputContainer);
+            };
+
+            inputWrapper.appendChild(input);
+            inputContainer.appendChild(inputWrapper);
+            inputContainer.appendChild(removeBtn);
+            problemInputs.appendChild(inputContainer);
+
+            // Focus on the new input
+            input.focus();
+        }
+        function shuffle(array) {
+            let currentIndex = array.length;
+            let temporaryValue, randomIndex;
+
+            // While there remain elements to shuffle
+            while (currentIndex !== 0) {
+                // Pick a remaining element
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex -= 1;
+
+                // Swap it with the current element
+                temporaryValue = array[currentIndex];
+                array[currentIndex] = array[randomIndex];
+                array[randomIndex] = temporaryValue;
+            }
+
+            return array;
+        }
+
+        function showError(message) {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-circle"></i> ${message}</div>`;
+
+            // Clear the error after 4 seconds
+            setTimeout(() => {
+                errorContainer.innerHTML = '';
+            }, 4000);
+        }
+
+        function setLoading(isLoading) {
+            const shuffleBtn = document.getElementById('shuffle-btn');
+            if (isLoading) {
+                shuffleBtn.innerHTML = '<span class="loading"></span> Processing...';
+                shuffleBtn.disabled = true;
+            } else {
+                shuffleBtn.innerHTML = '<i class="fas fa-random"></i> Shuffle & Assign';
+                shuffleBtn.disabled = false;
+            }
+        }
+
+        function shuffleAndAssign() {
+            // Set loading state
+            setLoading(true);
+
+            // Get all team inputs
+            const teamInputs = document.querySelectorAll('.team-input');
+            const teams = Array.from(teamInputs).map(input => input.value.trim()).filter(val => val !== '');
+
+            // Get all problem statement inputs
+            const problemInputs = document.querySelectorAll('.problem-input');
+            const problems = Array.from(problemInputs).map(input => input.value.trim()).filter(val => val !== '');
+
+            // Validate
+            if (teams.length === 0) {
+                showError('Please add at least one team.');
+                setLoading(false);
+                return;
+            }
+
+            if (problems.length === 0) {
+                showError('Please add at least one problem statement.');
+                setLoading(false);
+                return;
+            }
+
+            if (teams.length !== problems.length) {
+                showError('The number of teams must match the number of problem statements.');
+                setLoading(false);
+                return;
+            }
+
+            // Check for duplicate team names
+            if (hasDuplicates(teams)) {
+                showError('Duplicate team names are not allowed. Please use unique team names.');
+                setLoading(false);
+                return;
+            }
+
+            // Check for duplicate problem statements
+            if (hasDuplicates(problems)) {
+                showError('Duplicate problem statements are not allowed. Please use unique problem statements.');
+                setLoading(false);
+                return;
+            }
+
+            // Use setTimeout to simulate processing and allow the UI to update
+            setTimeout(() => {
+                // Shuffle the problem statements
+                const shuffledProblems = shuffle([...problems]);
+
+                // Create the assignments
+                const assignments = teams.map((team, index) => {
+                    return {
+                        team: team,
+                        problem: shuffledProblems[index]
+                    };
+                });
+
+                // Show the results section
+                const resultsSection = document.getElementById('results-section');
+                resultsSection.classList.add('show');
+
+                // Update assignments count
+                document.getElementById('assignments-count').textContent = `${assignments.length} ${assignments.length === 1 ? 'pair' : 'pairs'}`;
+
+                // Clear previous assignments
+                const assignmentsContainer = document.getElementById('assignments-container');
+                assignmentsContainer.innerHTML = '';
+
+                // Check if there are any assignments
+                if (assignments.length === 0) {
+                    assignmentsContainer.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-clipboard"></i>
+              <p>No assignments to display. Add teams and problems to get started.</p>
+            </div>
+          `;
+                } else {
+                    // Add each assignment with a delay for animation
+                    assignments.forEach((assignment, index) => {
+                        setTimeout(() => {
+                            const resultCard = document.createElement('div');
+                            resultCard.className = 'result-card';
+                            resultCard.style.animationDelay = `${index * 0.1}s`;
+
+                            const teamLabel = document.createElement('div');
+                            teamLabel.className = 'team-label';
+
+                            const teamIcon = document.createElement('div');
+                            teamIcon.className = 'team-icon';
+                            teamIcon.innerHTML = '<i class="fas fa-users"></i>';
+
+                            teamLabel.appendChild(teamIcon);
+                            teamLabel.appendChild(document.createTextNode(assignment.team));
+
+                            const problemLabel = document.createElement('div');
+                            problemLabel.className = 'problem-label';
+                            problemLabel.textContent = assignment.problem;
+
+                            resultCard.appendChild(teamLabel);
+                            resultCard.appendChild(problemLabel);
+                            assignmentsContainer.appendChild(resultCard);
+                        }, index * 100);
+                    });
+                }
+
+                // Add print button to results header
+                setTimeout(() => {
+                    addPrintButtonToHeader();
+                }, assignments.length * 100 + 100);
+
+                // Scroll to the results section
+                setTimeout(() => {
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+                    // Reset loading state
+                    setLoading(false);
+                }, 300);
+            }, 800); // Simulate processing time
+        }
+
+        function confirmReset() {
+            const resetBtn = document.getElementById('reset-btn');
+
+            if (resetBtn.classList.contains('confirm-reset')) {
+                resetAll();
+                resetBtn.classList.remove('confirm-reset');
+                resetBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Reset All';
+            } else {
+                resetBtn.classList.add('confirm-reset');
+                resetBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Confirm Reset';
+
+                // Reset the button after 3 seconds if not clicked
+                setTimeout(() => {
+                    if (resetBtn.classList.contains('confirm-reset')) {
+                        resetBtn.classList.remove('confirm-reset');
+                        resetBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Reset All';
+                    }
+                }, 3000);
+            }
+        }
+
+        function resetAll() {
+            // Reset team inputs
+            const teamInputs = document.getElementById('team-inputs');
+            teamInputs.innerHTML = `
+        <div class="input-container">
+          <div class="input-wrapper">
+            <input type="text" class="team-input" placeholder="Enter team name" oninput="checkInputValue(this)">
+          </div>
+          <button class="add-btn" onclick="addTeamField()"><i class="fas fa-plus"></i></button>
+        </div>
+      `;
+
+            // Reset problem inputs
+            const problemInputs = document.getElementById('problem-inputs');
+            problemInputs.innerHTML = `
+        <div class="input-container">
+          <div class="input-wrapper">
+            <input type="text" class="problem-input" placeholder="Enter problem statement" oninput="checkInputValue(this)">
+          </div>
+          <button class="add-btn" onclick="addProblemField()"><i class="fas fa-plus"></i></button>
+        </div>
+      `;
+
+            // Hide the results section
+            const resultsSection = document.getElementById('results-section');
+            resultsSection.classList.remove('show');
+
+            // Clear error messages
+            document.getElementById('error-container').innerHTML = '';
+
+            // Add a few initial fields for convenience
+            addTeamField();
+            addProblemField();
+        }
+
+        // Add a few initial fields for convenience when the page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add current date for print footer
+            document.body.setAttribute('data-print-date', new Date().toLocaleDateString());
+
+            // Add initial fields
+            addTeamField();
+            addTeamField();
+            addProblemField();
+            addProblemField();
+        });
+    </script>
+</body>
+
+</html>
